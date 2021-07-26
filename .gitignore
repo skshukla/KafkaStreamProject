@@ -1,0 +1,11 @@
+target/
+.mvn/
+.idea
+*.iws
+*.iml
+*.ipr
+
+mvnw
+mvnw.cmd
+
+nginx/.contents-runtime
