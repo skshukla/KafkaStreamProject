@@ -26,6 +26,7 @@ import java.util.stream.IntStream;
 public class KafkaStreamApplication {
     public static void main(String[] args) {
         SpringApplication.run(KafkaStreamApplication.class, args);
+        GenUtil.sleep(1000);
     }
 }
 
