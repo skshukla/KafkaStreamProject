@@ -59,8 +59,6 @@ function validateDetails() {
 
 echo "TOPIC {${TOPIC_NAME}}, DELAY_IN_MS {${DELAY_IN_MS}}, LOCAL_FILE_PATH {${LOCAL_FILE_PATH}}, KAFKA_SERVERS {${KAFKA_SERVERS}}....."
 
-validateDetails
-
 
 cd $PROJ_DIR
 
@@ -68,7 +66,7 @@ if [[ "$BUILD_PROJECT" == "true" ]]; then
     mvn clean package docker:build -DskipTests
 fi
 
-
+validateDetails
 
 
 # --------------------------------------------------------------------------------
