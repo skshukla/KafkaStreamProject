@@ -33,9 +33,6 @@ public class KafkaStreamApplication {
 @Component
 class Sample {
 
-
-
-//    @Value("${file:src/main/data/dummy_stream_user_data.csv}")
     @Value("${file:/tmp/data.csv}")
     private String filePath;
 
@@ -61,11 +58,12 @@ class Sample {
         GenUtil.println(String.format("Starting KafkaStream application with filePath {%s}, topic {%s}, delayInMs {%s}", filePath, topic, delayInMs));
         final List<byte[]> dataBytes = getCSVDataAsBytes(filePath);
 
-        dataBytes.forEach(e -> {
-            GenUtil.sleep(Integer.parseInt(delayInMs));
-            GenUtil.println(String.format("To Topic {%s} Sending message : {%s}", topic, new String(e)));
-            kafkaTemplate.send(topic, null, e);
-
+        IntStream.range(0, dataBytes.size()).forEach(i -> {
+            GenUtil.println(String.format("To Topic {%s} Sending message : {%s}", topic, new String(dataBytes.get(i))));
+            kafkaTemplate.send(topic, null, dataBytes.get(i));
+            if (i != dataBytes.size()-1) {
+                GenUtil.sleep(Integer.parseInt(delayInMs));
+            }
         });
 
     }
