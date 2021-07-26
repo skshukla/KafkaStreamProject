@@ -4,7 +4,7 @@
 
 `cd KafkaStreamProject`
 
-`alias .ks=`pwd`/scripts/run.sh`
+`alias .ks=$(pwd)/scripts/run.sh`
 
 
 
