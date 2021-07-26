@@ -6,9 +6,7 @@ PROJ_DIR=$SCRIPT_DIR/..
 # --------------------------------------------------------------------------------
 
 BUILD_PROJECT="false"
-#LOCAL_FILE_PATH=/Users/sachin/tmp/t5/sample.csv
-#DELAY_IN_MS=1000
-#TOPIC_NAME=t-321
+KAFKA_SERVERS="vm-minikube:30092,vm-minikube:30093,vm-minikube:30094"
 
 # --------------------------------------------------------------------------------
 
@@ -55,11 +53,6 @@ function validateDetails() {
     if [[ -z ${DELAY_IN_MS} ]]; then
         echo 'Argument Delay is not passed, taking default value as 1000 ms..'
         DELAY_IN_MS=1000
-    fi
-
-    if [[ -z ${KAFKA_SERVERS} ]]; then
-        echo 'Argument Kafka Servers is not passed..using default value of localhost:9092'
-        KAFKA_SERVERS="localhost:9092"
     fi
 
 }
