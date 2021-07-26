@@ -1,6 +1,7 @@
-git clone https://github.com/skshukla/KafkaStreamProject.git
-cd KafkaStreamProject
-alias .ks=`pwd`/scripts/run.sh
+
+`git clone https://github.com/skshukla/KafkaStreamProject.git`
+`cd KafkaStreamProject`
+`alias .ks=`pwd`/scripts/run.sh`
 
 
 ###### Run the below commad (Only first time required)
