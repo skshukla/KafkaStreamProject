@@ -1,87 +1,77 @@
 package com.sachin.work.kafkastreams;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.opencsv.CSVReader;
+import com.sachin.work.kafkastreams.runners.CountStreamExample;
+import com.sachin.work.kafkastreams.runners.PopulateCSVDataToKafkaTopic;
 import com.sachin.work.kafkastreams.util.GenUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.stereotype.Component;
-import reactor.core.publisher.Flux;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
 
-import java.io.File;
-import java.io.FileReader;
-import java.time.Duration;
-import java.util.*;
-import java.util.stream.IntStream;
+
+import java.util.Arrays;
+
+/**
+ * To execute in local environment
+ * mvn clean spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=local"
+ */
 
 @SpringBootApplication
 public class KafkaStreamApplication {
-    public static void main(String[] args) {
-        SpringApplication.run(KafkaStreamApplication.class, args);
-        GenUtil.sleep(1000);
-    }
-}
+    static {
+        // Un-Comment to run for local development
+//        System.setProperty("spring.profiles.active", "local");
+//        System.setProperty("runner", "count-stream");
 
-@Component
-class Sample {
-
-    @Value("${file:/tmp/data.csv}")
-    private String filePath;
-
-    @Value("${topic:t-002}")
-    private String topic;
-
-    @Value("${delay:1000}")
-    private String delayInMs;
-
-
-    private ApplicationArguments appArgs;
-
-    public Sample(ApplicationArguments appArgs) {
-        this.appArgs = appArgs;
     }
 
     @Autowired
-    KafkaTemplate<byte[], byte[]> kafkaTemplate;
+    private Environment environment;
 
+    @Autowired
+    private ApplicationContext context;
 
-    @EventListener(ApplicationReadyEvent.class)
-    public void start() throws Exception {
-        GenUtil.println(String.format("Starting KafkaStream application with filePath {%s}, topic {%s}, delayInMs {%s}", filePath, topic, delayInMs));
-        final List<byte[]> dataBytes = getCSVDataAsBytes(filePath);
-
-        IntStream.range(0, dataBytes.size()).forEach(i -> {
-            GenUtil.println(String.format("To Topic {%s} Sending message : {%s}", topic, new String(dataBytes.get(i))));
-            kafkaTemplate.send(topic, null, dataBytes.get(i));
-            if (i != dataBytes.size()-1) {
-                GenUtil.sleep(Integer.parseInt(delayInMs));
-            }
-        });
-
+    public static void main(String[] args) throws Exception {
+        ApplicationContext context = SpringApplication.run(KafkaStreamApplication.class, args);
+        context.getBean(KafkaStreamApplication.class).run();
+        GenUtil.sleep(1000);
     }
 
-
-    public List<byte[]> getCSVDataAsBytes(final String filePath) throws Exception {
-        List<byte[]> returnList = new ArrayList<>();
-        final ObjectMapper mapper = new ObjectMapper();
-        List<Map<String, Object>> list = GenUtil.readObjectsFromCsv(new File(filePath));
-        list.stream().forEach(e -> {
-            try {
-                returnList.add(mapper.writeValueAsBytes(e));
-            } catch (JsonProcessingException ex) {
-                ex.printStackTrace();
-            }
-        });
-        return returnList;
+    private void run() throws Exception {
+        GenUtil.println(String.format("Runner string val {%s}", this.environment.getProperty("runner")));
+        final RUNNER_PROGS runner = StringUtils.isEmpty(this.environment.getProperty("runner")) ? RUNNER_PROGS.POPULATE_CSV_DATA
+                : Arrays.stream(RUNNER_PROGS.values())
+                .filter(e -> e.getKey().equals(this.environment.getProperty("runner"))).findFirst().get();
+        GenUtil.println(String.format("Runner enum val {%s}", runner));
+        switch (runner) {
+            case POPULATE_CSV_DATA:
+                context.getBean(PopulateCSVDataToKafkaTopic.class).run();
+                break;
+            case COUNT_STREAM:
+                context.getBean(CountStreamExample.class).run();
+                break;
+            default:
+                context.getBean(PopulateCSVDataToKafkaTopic.class).run();
+        }
     }
 
+    static enum RUNNER_PROGS {
+        POPULATE_CSV_DATA("populate-csv-data"),
+        COUNT_STREAM("count-stream");
 
+        RUNNER_PROGS(String key) {
+            this.key = key;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        private String key;
+    }
 }
+
+
+
