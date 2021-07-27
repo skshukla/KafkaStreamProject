@@ -4,14 +4,10 @@ package com.sachin.work.kafkastreams.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.File;
-import java.io.IOException;
+
+import java.io.*;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -88,4 +84,18 @@ public class GenUtil {
         }
     }
 
+    public static final List<String> readFromInputStream(InputStream inputStream)  throws IOException {
+        final List<String> strList = new ArrayList<>();
+        try (BufferedReader br
+                     = new BufferedReader(new InputStreamReader(inputStream))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                strList.add(line);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return strList;
+    }
 }

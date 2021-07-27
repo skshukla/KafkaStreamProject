@@ -1,4 +1,4 @@
-id,gender,name,deptId,age,monthly_salary
+id,gender,name,dept_id,age,monthly_salary
 1001,Male,"Krishna, Gupta",24,86,27475
 1002,NA,"John, D.",19,29,38760
 1003,Female,"John, Kumar",26,29,20991

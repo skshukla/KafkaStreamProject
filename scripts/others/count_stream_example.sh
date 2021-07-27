@@ -2,17 +2,24 @@
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJ_DIR=$SCRIPT_DIR/../..
-
+source $SCRIPT_DIR/dummy-info.sh
 # --------------------------------------------------------------------------------
 
 BUILD_PROJECT="false"
 KAFKA_SERVERS="vm-minikube:30092,vm-minikube:30093,vm-minikube:30094"
 
-COUNT_STREAM_APP_ID="count-stream-app-xyz-0001"
-COUNT_STREAM_TOPIC_DEP="dept-0001"
+COUNT_STREAM_APP_ID="count-stream-app-xyz-0012"
+COUNT_STREAM_TOPIC_DEP="dept-0003"
+COUNT_STREAM_TOPIC_EMPLOYEE="emp-2-012"
+COUNT_STREAM_TOPIC_EMPLOYEE_COUNT="emp-2-count-012"
 COUNT_STREAM_TOPIC_DEP_COUNT="department-count"
 
 # --------------------------------------------------------------------------------
+
+function build() {
+    mvn clean package docker:build -DskipTests
+    exit 0;
+}
 
 function helpFunction() {
     echo 'Use [-b] [Optional] Build the project Docker Image'
@@ -45,20 +52,20 @@ echo "COUNT_STREAM_APP_ID {${COUNT_STREAM_APP_ID}}, COUNT_STREAM_TOPIC_DEP {${CO
 cd $PROJ_DIR
 
 if [[ "$BUILD_PROJECT" == "true" ]]; then
-    mvn clean package docker:build -DskipTests
+    build
 fi
 
 #validateDetails
 
 # --------------------------------------------------------------------------------
 
-DUMMY="dummy"
-
 docker run \
     -e RUNNER="count-stream" \
     -e KAFKA_SERVERS=${KAFKA_SERVERS} \
     -e COUNT_STREAM_APP_ID=${COUNT_STREAM_APP_ID} \
     -e COUNT_STREAM_TOPIC_DEP=${COUNT_STREAM_TOPIC_DEP} \
+    -e COUNT_STREAM_TOPIC_EMPLOYEE=${COUNT_STREAM_TOPIC_EMPLOYEE} \
+    -e COUNT_STREAM_TOPIC_EMPLOYEE_COUNT=${COUNT_STREAM_TOPIC_EMPLOYEE_COUNT} \
     -e COUNT_STREAM_TOPIC_DEP_COUNT=${COUNT_STREAM_TOPIC_DEP_COUNT} \
-    -e LOCAL_FILE_PATH=${DUMMY} -e DELAY_IN_MS=${DUMMY} -e TOPIC_NAME=${DUMMY} \
+    -e LOCAL_FILE_PATH=${LOCAL_FILE_PATH} -e DELAY_IN_MS=${DELAY_IN_MS} -e TOPIC_NAME=${TOPIC_NAME} \
     kafkastreamproject:v1

@@ -12,6 +12,7 @@ import org.springframework.core.env.Environment;
 
 
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * To execute in local environment
@@ -40,6 +41,7 @@ public class KafkaStreamApplication {
     }
 
     private void run() throws Exception {
+        printAllEnvValues();
         GenUtil.println(String.format("Runner string val {%s}", this.environment.getProperty("runner")));
         final RUNNER_PROGS runner = StringUtils.isEmpty(this.environment.getProperty("runner")) ? RUNNER_PROGS.POPULATE_CSV_DATA
                 : Arrays.stream(RUNNER_PROGS.values())
@@ -50,11 +52,19 @@ public class KafkaStreamApplication {
                 context.getBean(PopulateCSVDataToKafkaTopic.class).run();
                 break;
             case COUNT_STREAM:
-                context.getBean(CountStreamExample.class).run();
+                context.getBean(CountStreamExample.class).run_Employee();
                 break;
             default:
                 context.getBean(PopulateCSVDataToKafkaTopic.class).run();
         }
+    }
+
+    private static void printAllEnvValues() {
+        GenUtil.println("\nGoing to print Environment values:\n---------------------->\n");
+        System.getenv().entrySet().stream().sorted( (o1, o2) -> o1.getKey().compareTo(o2.getKey())).forEach(e -> {
+            GenUtil.println(String.format("Env key {%s} has value {%s}", e.getKey(), e.getValue()));
+        });
+        GenUtil.println("----------------------\n");
     }
 
     static enum RUNNER_PROGS {
