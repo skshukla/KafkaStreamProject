@@ -7,8 +7,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
 
 import java.util.Arrays;
@@ -23,9 +26,8 @@ import java.util.Collections;
 public class KafkaStreamApplication {
     static {
         // Un-Comment to run for local development
-//        System.setProperty("spring.profiles.active", "local");
-//        System.setProperty("runner", "count-stream");
-
+        System.setProperty("spring.profiles.active", "local");
+        System.setProperty("runner", "count-stream");
     }
 
     @Autowired
@@ -35,9 +37,19 @@ public class KafkaStreamApplication {
     private ApplicationContext context;
 
     public static void main(String[] args) throws Exception {
-        ApplicationContext context = SpringApplication.run(KafkaStreamApplication.class, args);
-        context.getBean(KafkaStreamApplication.class).run();
-        GenUtil.sleep(1000);
+        SpringApplication.run(KafkaStreamApplication.class, args);
+//        ApplicationContext context = SpringApplication.run(KafkaStreamApplication.class, args);
+//        Thread.currentThread().sleep(10 * 60 * 1000);
+    }
+
+    @Component
+    class Starter {
+
+        @EventListener(ApplicationReadyEvent.class)
+        public void start() throws Exception {
+            System.out.println("I am started...!!!!");
+            run();
+        }
     }
 
     private void run() throws Exception {
